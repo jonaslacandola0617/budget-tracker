@@ -1,0 +1,48 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Budget {
+  id          String    @id @default(cuid())
+  name        String
+  amount      Float
+  spent       Float     @default(0)
+  category    String
+  period      Period    @default(MONTHLY)
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  color       String    @default("#6366f1")
+  icon        String    @default("wallet")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expenses    Expense[]
+
+  @@map("budgets")
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  title       String
+  amount      Float
+  category    String
+  date        DateTime  @default(now())
+  notes       String?
+  budgetId    String?
+  budget      Budget?   @relation(fields: [budgetId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("expenses")
+}
+
+enum Period {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
