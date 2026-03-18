@@ -4,14 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
-  LayoutDashboard, Wallet, Receipt, BarChart3,
-  Settings, TrendingUp, Menu, X,
+  LayoutDashboard,
+  Wallet,
+  Receipt,
+  BarChart3,
+  Settings,
+  TrendingUp,
+  Menu,
+  X,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Budgets",   href: "/dashboard/budgets",  icon: Wallet },
-  { label: "Expenses",  href: "/dashboard/expenses", icon: Receipt },
+  { label: "Budgets", href: "/dashboard/budgets", icon: Wallet },
+  { label: "Expenses", href: "/dashboard/expenses", icon: Receipt },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
@@ -22,11 +28,22 @@ function DesktopSidebar({ pathname }: { pathname: string }) {
       <Logo />
       <nav className="flex-1 px-3 py-4 space-y-0.5">
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-          <NavLink key={href} href={href} label={label} Icon={Icon} active={pathname === href} />
+          <NavLink
+            key={href}
+            href={href}
+            label={label}
+            Icon={Icon}
+            active={pathname === href}
+          />
         ))}
       </nav>
       <div className="px-3 pb-4 border-t border-border pt-4">
-        <NavLink href="/dashboard/settings" label="Settings" Icon={Settings} active={pathname === "/dashboard/settings"} />
+        <NavLink
+          href="/dashboard/settings"
+          label="Settings"
+          Icon={Settings}
+          active={pathname === "/dashboard/settings"}
+        />
       </div>
     </aside>
   );
@@ -37,11 +54,15 @@ function MobileNav({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
 
   // close on route change
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
   // prevent body scroll when open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   return (
@@ -59,7 +80,10 @@ function MobileNav({ pathname }: { pathname: string }) {
           <div className="w-6 h-6 rounded-lg bg-accent/20 flex items-center justify-center">
             <TrendingUp className="w-3.5 h-3.5 text-accent" />
           </div>
-          <span className="text-base font-bold text-text-primary" style={{ fontFamily: "var(--font-display)" }}>
+          <span
+            className="text-base font-bold text-text-primary"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             Ledger
           </span>
         </div>
@@ -92,11 +116,24 @@ function MobileNav({ pathname }: { pathname: string }) {
         </div>
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-            <NavLink key={href} href={href} label={label} Icon={Icon} active={pathname === href} mobile />
+            <NavLink
+              key={href}
+              href={href}
+              label={label}
+              Icon={Icon}
+              active={pathname === href}
+              mobile
+            />
           ))}
         </nav>
         <div className="px-3 pb-6 border-t border-border pt-4 safe-bottom">
-          <NavLink href="/dashboard/settings" label="Settings" Icon={Settings} active={pathname === "/dashboard/settings"} mobile />
+          <NavLink
+            href="/dashboard/settings"
+            label="Settings"
+            Icon={Settings}
+            active={pathname === "/dashboard/settings"}
+            mobile
+          />
         </div>
       </div>
 
@@ -109,8 +146,12 @@ function MobileNav({ pathname }: { pathname: string }) {
 /* ── Bottom tab bar (phones) ──────────────────────────── */
 function BottomTabBar({ pathname }: { pathname: string }) {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-bg-secondary border-t border-border z-[50] safe-bottom"
-         style={{ height: "calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px))" }}>
+    <nav
+      className="lg:hidden fixed bottom-0 left-0 right-0 bg-bg-secondary border-t border-border z-[50] safe-bottom"
+      style={{
+        height: "calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px))",
+      }}
+    >
       <div className="flex h-16">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
           const active = pathname === href;
@@ -121,7 +162,9 @@ function BottomTabBar({ pathname }: { pathname: string }) {
               className={`flex-1 flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors touch-manipulation
                 ${active ? "text-accent" : "text-text-dim hover:text-text-secondary"}`}
             >
-              <Icon className={`w-5 h-5 transition-transform ${active ? "scale-110" : ""}`} />
+              <Icon
+                className={`w-5 h-5 transition-transform ${active ? "scale-110" : ""}`}
+              />
               <span className="text-[10px]">{label}</span>
             </Link>
           );
@@ -134,11 +177,14 @@ function BottomTabBar({ pathname }: { pathname: string }) {
 /* ── Shared sub-components ────────────────────────────── */
 function Logo() {
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-2.5 xl:px-4 xl:pt-4">
       <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
         <TrendingUp className="w-4 h-4 text-accent" />
       </div>
-      <span className="text-lg font-bold text-text-primary tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+      <span
+        className="text-lg font-bold text-text-primary tracking-tight"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
         Ledger
       </span>
     </div>
@@ -146,9 +192,17 @@ function Logo() {
 }
 
 function NavLink({
-  href, label, Icon, active, mobile,
+  href,
+  label,
+  Icon,
+  active,
+  mobile,
 }: {
-  href: string; label: string; Icon: React.ElementType; active: boolean; mobile?: boolean;
+  href: string;
+  label: string;
+  Icon: React.ElementType;
+  active: boolean;
+  mobile?: boolean;
 }) {
   return (
     <Link
