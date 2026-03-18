@@ -7,35 +7,37 @@ datasource db {
   provider = "postgresql"
 }
 
+// A Budget entry = funds added to the central pool
+// Think of it like a deposit or allocation record
 model Budget {
   id          String    @id @default(cuid())
   name        String
   amount      Float
-  spent       Float     @default(0)
   category    String
   period      Period    @default(MONTHLY)
   startDate   DateTime  @default(now())
   endDate     DateTime?
   color       String    @default("#6366f1")
   icon        String    @default("wallet")
+  notes       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  expenses    Expense[]
 
   @@map("budgets")
 }
 
+// An Expense = deduction from the central pool
+// budgetTag is optional — just for labeling/record keeping
 model Expense {
-  id          String    @id @default(cuid())
-  title       String
-  amount      Float
-  category    String
-  date        DateTime  @default(now())
-  notes       String?
-  budgetId    String?
-  budget      Budget?   @relation(fields: [budgetId], references: [id], onDelete: SetNull)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  title     String
+  amount    Float
+  category  String
+  date      DateTime @default(now())
+  notes     String?
+  budgetTag String?  // optional label linking to a budget name (not a FK)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("expenses")
 }

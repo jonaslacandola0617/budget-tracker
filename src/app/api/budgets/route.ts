@@ -13,35 +13,22 @@ export async function GET(request: NextRequest) {
 
     const budgets = await prisma.budget.findMany({
       where,
-      include: {
-        expenses: {
-          orderBy: { date: "desc" },
-          take: 5,
-        },
-      },
       orderBy: { createdAt: "desc" },
     });
-
     return NextResponse.json(budgets);
   } catch (error) {
     console.error("[BUDGETS_GET]", error);
-    return NextResponse.json(
-      { error: "Failed to fetch budgets" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch budgets" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, amount, category, period, color, icon, endDate } = body;
+    const { name, amount, category, period, color, icon, notes, endDate } = body;
 
     if (!name || !amount || !category) {
-      return NextResponse.json(
-        { error: "Name, amount, and category are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Name, amount, and category are required" }, { status: 400 });
     }
 
     const budget = await prisma.budget.create({
@@ -52,16 +39,13 @@ export async function POST(request: NextRequest) {
         period: period ?? "MONTHLY",
         color: color ?? "#6366f1",
         icon: icon ?? "wallet",
+        notes: notes ?? null,
         endDate: endDate ? new Date(endDate) : null,
       },
     });
-
     return NextResponse.json(budget, { status: 201 });
   } catch (error) {
     console.error("[BUDGETS_POST]", error);
-    return NextResponse.json(
-      { error: "Failed to create budget" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create budget" }, { status: 500 });
   }
 }

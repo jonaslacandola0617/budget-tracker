@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, TrendingUp, TrendingDown, Wallet, AlertCircle } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { AnalyticsSummary, formatCurrency, formatPercent, getCategoryLabel } from "@/lib/types";
 import {
@@ -9,11 +9,7 @@ import {
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
 
-const MONTHS_OPTIONS = [
-  { label: "3 mo", value: 3 },
-  { label: "6 mo", value: 6 },
-  { label: "12 mo", value: 12 },
-];
+const MONTHS_OPTIONS = [{ label: "3 mo", value: 3 }, { label: "6 mo", value: 6 }, { label: "12 mo", value: 12 }];
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
@@ -22,31 +18,32 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/analytics?months=${months}`).then((r) => r.json()).then((d) => { setAnalytics(d); setLoading(false); });
+    fetch(`/api/analytics?months=${months}`)
+      .then((r) => r.json())
+      .then((d) => { setAnalytics(d?.totalAllocated !== undefined ? d : null); setLoading(false); })
+      .catch(() => setLoading(false));
   }, [months]);
 
   if (loading || !analytics) {
     return (
       <div className="space-y-5 animate-pulse">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="card h-28 skeleton" />)}
+        <div className="card h-32 skeleton" />
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="card h-28 skeleton" />)}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="card h-64 skeleton" />)}
-        </div>
+        <div className="card h-64 skeleton" />
       </div>
     );
   }
 
   const a = analytics;
-  const netBalance = a.totalBudget - a.totalSpent;
 
   return (
     <div className="space-y-5 sm:space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-text-primary" style={{ fontFamily: "var(--font-display)" }}>Analytics</h1>
-          <p className="text-xs sm:text-sm text-text-secondary mt-0.5">Financial insights and trends</p>
+          <p className="text-xs sm:text-sm text-text-secondary mt-0.5">Financial insights</p>
         </div>
         <div className="flex gap-1 bg-bg-card border border-border rounded-xl p-1">
           {MONTHS_OPTIONS.map((o) => (
@@ -59,27 +56,56 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label="Total Budget" value={formatCurrency(a.totalBudget)} icon={Wallet} sub={`${a.budgetCount} budgets`} />
-        <StatCard label="Total Spent" value={formatCurrency(a.totalSpent)} icon={TrendingDown} sub={`${a.totalExpenses} expenses`} variant={a.totalSpent > a.totalBudget ? "danger" : "default"} />
-        <StatCard label={netBalance >= 0 ? "Saved" : "Over"} value={formatCurrency(Math.abs(netBalance))} icon={TrendingUp} variant={netBalance >= 0 ? "success" : "danger"} sub={`${formatPercent(a.savingsRate)} savings`} />
-        <StatCard label="Over Budget" value={String(a.overBudgetCount)} icon={AlertCircle} variant={a.overBudgetCount > 0 ? "warning" : "success"} sub={`of ${a.budgetCount}`} />
+      {/* Balance summary */}
+      <div className="card p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8"
+        style={{ background: "linear-gradient(135deg, #181d27 0%, #1a1f2e 100%)" }}>
+        <div className="flex-1">
+          <p className="text-xs text-text-secondary uppercase tracking-widest mb-1">Current Balance</p>
+          <p className={`text-3xl font-bold tabular ${a.currentBalance >= 0 ? "text-text-primary" : "text-danger"}`}
+            style={{ fontFamily: "var(--font-display)" }}>
+            {formatCurrency(Math.abs(a.currentBalance))}
+          </p>
+        </div>
+        <div className="flex gap-6 sm:gap-8">
+          <div>
+            <p className="text-xs text-text-dim mb-1">Allocated</p>
+            <p className="text-lg font-semibold text-success tabular">{formatCurrency(a.totalAllocated)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-text-dim mb-1">Spent</p>
+            <p className="text-lg font-semibold text-danger tabular">{formatCurrency(a.totalSpent)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-text-dim mb-1">Saved</p>
+            <p className={`text-lg font-semibold tabular ${a.savingsRate > 0 ? "text-accent" : "text-danger"}`}>
+              {formatPercent(a.savingsRate)}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Trend — full width */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <StatCard label="Total Allocated" value={formatCurrency(a.totalAllocated)} icon={ArrowDownCircle} sub={`${a.budgetCount} entries`} variant="success" />
+        <StatCard label="Total Spent" value={formatCurrency(a.totalSpent)} icon={ArrowUpCircle} sub={`${a.totalExpenses} expenses`} variant={a.totalSpent > a.totalAllocated ? "danger" : "default"} />
+        <div className="col-span-2 sm:col-span-1">
+          <StatCard label="Savings Rate" value={formatPercent(a.savingsRate)} icon={TrendingUp} variant={a.savingsRate > 20 ? "success" : a.savingsRate > 0 ? "warning" : "danger"} />
+        </div>
+      </div>
+
+      {/* Monthly flow */}
       <div className="card p-4 sm:p-5">
         <h2 className="font-semibold text-text-primary mb-4 text-sm sm:text-base" style={{ fontFamily: "var(--font-display)" }}>
-          Monthly Spending Trend
+          Monthly Cash Flow
         </h2>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={a.monthlyTrend}>
             <defs>
-              <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#7c6af7" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#7c6af7" stopOpacity={0} />
+              <linearGradient id="spG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
+              <linearGradient id="alG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
                 <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
               </linearGradient>
             </defs>
@@ -89,14 +115,14 @@ export default function AnalyticsPage() {
             <Tooltip contentStyle={{ background: "#181d27", border: "1px solid #222940", borderRadius: "12px", fontSize: "12px" }}
               labelStyle={{ color: "#94a3b8" }} formatter={(val: number, name: string) => [formatCurrency(val), name]} />
             <Legend formatter={(v) => <span style={{ color: "#94a3b8", fontSize: 12 }}>{v}</span>} />
-            <Area type="monotone" dataKey="budget" stroke="#22c55e" strokeWidth={1.5} fill="url(#bg3)" strokeDasharray="4 4" name="Budget" />
-            <Area type="monotone" dataKey="spent" stroke="#7c6af7" strokeWidth={2} fill="url(#sg2)" name="Spent" />
+            <Area type="monotone" dataKey="allocated" stroke="#22c55e" strokeWidth={1.5} fill="url(#alG)" strokeDasharray="4 4" name="Allocated" />
+            <Area type="monotone" dataKey="spent" stroke="#ef4444" strokeWidth={2} fill="url(#spG)" name="Spent" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Category + Utilization — stack on mobile, side-by-side on sm+ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Category breakdown */}
         <div className="card p-4 sm:p-5">
           <h2 className="font-semibold text-text-primary mb-4 text-sm sm:text-base" style={{ fontFamily: "var(--font-display)" }}>
             Spending by Category
@@ -130,57 +156,58 @@ export default function AnalyticsPage() {
           ) : <div className="py-12 text-center text-sm text-text-dim">No expense data yet.</div>}
         </div>
 
+        {/* Budget allocation breakdown */}
         <div className="card p-4 sm:p-5">
           <h2 className="font-semibold text-text-primary mb-4 text-sm sm:text-base" style={{ fontFamily: "var(--font-display)" }}>
-            Budget Utilization
+            Allocations Breakdown
           </h2>
-          {a.budgetUtilization.length > 0 ? (
+          {a.budgetBreakdown.length > 0 ? (
             <>
               <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={a.budgetUtilization} layout="vertical" margin={{ left: 0, right: 20 }}>
+                <BarChart data={a.budgetBreakdown} layout="vertical" margin={{ left: 0, right: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#222940" horizontal={false} />
-                  <XAxis type="number" tick={{ fill: "#64748b", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
+                  <XAxis type="number" tick={{ fill: "#64748b", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
                   <YAxis type="category" dataKey="name" tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} width={80} />
                   <Tooltip contentStyle={{ background: "#181d27", border: "1px solid #222940", borderRadius: "12px", fontSize: "12px" }}
-                    formatter={(val: number) => [`${val.toFixed(0)}%`]} />
-                  <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
-                    {a.budgetUtilization.map((entry, i) => (
-                      <Cell key={i} fill={entry.percentage >= 100 ? "#ef4444" : entry.percentage >= 80 ? "#f59e0b" : entry.color} />
-                    ))}
+                    formatter={(val: number) => [formatCurrency(val)]} />
+                  <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
+                    {a.budgetBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
               <div className="mt-3 space-y-1.5">
-                {a.budgetUtilization.map((b) => (
+                {a.budgetBreakdown.map((b) => (
                   <div key={b.name} className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-text-secondary truncate max-w-[120px]">{b.name}</span>
-                    <span className={`tabular font-medium ${b.percentage >= 100 ? "text-danger" : b.percentage >= 80 ? "text-warning" : "text-text-primary"}`}>
-                      {formatCurrency(b.spent)} / {formatCurrency(b.budget)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: b.color }} />
+                      <span className="text-text-secondary truncate max-w-[120px]">{b.name}</span>
+                    </div>
+                    <span className="text-text-primary tabular font-medium">{formatCurrency(b.amount)}</span>
                   </div>
                 ))}
               </div>
             </>
-          ) : <div className="py-12 text-center text-sm text-text-dim">No budget data yet.</div>}
+          ) : <div className="py-12 text-center text-sm text-text-dim">No allocations yet.</div>}
         </div>
       </div>
 
+      {/* Top category insight */}
       {a.topCategory && a.topCategory !== "N/A" && (
         <div className="card p-4 sm:p-5 flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
-            <BarChart3 className="w-5 h-5 text-accent" />
+            <Wallet className="w-5 h-5 text-accent" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs sm:text-sm text-text-secondary">Top spending category</p>
+            <p className="text-xs sm:text-sm text-text-secondary">Biggest spending category</p>
             <p className="font-semibold text-text-primary truncate" style={{ fontFamily: "var(--font-display)" }}>
               {getCategoryLabel(a.topCategory)}
             </p>
           </div>
           <div className="text-right flex-shrink-0">
-            <p className="text-xs sm:text-sm text-text-secondary">Savings rate</p>
-            <p className={`font-bold tabular ${a.savingsRate > 0 ? "text-success" : "text-danger"}`}
+            <p className="text-xs sm:text-sm text-text-secondary">Balance remaining</p>
+            <p className={`font-bold tabular ${a.currentBalance >= 0 ? "text-success" : "text-danger"}`}
                style={{ fontFamily: "var(--font-display)" }}>
-              {formatPercent(a.savingsRate)}
+              {formatCurrency(Math.abs(a.currentBalance))}
             </p>
           </div>
         </div>

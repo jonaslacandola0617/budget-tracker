@@ -109,7 +109,7 @@ function MobileNav({ pathname }: { pathname: string }) {
 /* ── Bottom tab bar (phones) ──────────────────────────── */
 function BottomTabBar({ pathname }: { pathname: string }) {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-bg-secondary border-t border-border z-30 safe-bottom"
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-bg-secondary border-t border-border z-[50] safe-bottom"
          style={{ height: "calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px))" }}>
       <div className="flex h-16">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
