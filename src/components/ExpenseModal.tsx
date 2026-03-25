@@ -39,10 +39,11 @@ export function ExpenseModal({ open, onClose, onSave, initial, budgets }: Props)
       {/* Backdrop */}
       <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal — full screen on mobile, centered card on sm+ */}
-      <div className="fixed z-[61] inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
-        <div className="bg-bg-card border border-border w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl flex flex-col"
-             style={{ height: "85dvh", maxHeight: "85dvh" }}>
+      {/* Modal — bottom sheet on mobile, centered on sm+ */}
+      <div className="fixed z-[61] inset-x-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4"
+           style={{ bottom: 0 }}>
+        <div className="modal-sheet bg-bg-card border border-border w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl flex flex-col"
+             style={{ maxHeight: "88dvh" }}>
 
           {/* Drag handle — mobile only */}
           <div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -108,7 +109,7 @@ export function ExpenseModal({ open, onClose, onSave, initial, budgets }: Props)
             </div>
           </div>
 
-          {/* Footer — always pinned at bottom of the fixed-height box */}
+          {/* Footer — always pinned at bottom */}
           <div className="flex-shrink-0 flex gap-3 px-5 py-4 border-t border-border bg-bg-card">
             <button onClick={onClose} className="btn-ghost flex-1">Cancel</button>
             <button onClick={handleSubmit} disabled={loading} className="btn-primary flex-1">

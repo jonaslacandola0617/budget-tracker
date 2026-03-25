@@ -45,9 +45,10 @@ export function BudgetModal({ open, onClose, onSave, initial }: Props) {
       <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed z-[61] inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
-        <div className="bg-bg-card border border-border w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl flex flex-col"
-             style={{ height: "85dvh", maxHeight: "85dvh" }}>
+      <div className="fixed z-[61] inset-x-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4"
+           style={{ bottom: 0 }}>
+        <div className="modal-sheet bg-bg-card border border-border w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl flex flex-col"
+             style={{ maxHeight: "88dvh" }}>
 
           {/* Drag handle */}
           <div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0">

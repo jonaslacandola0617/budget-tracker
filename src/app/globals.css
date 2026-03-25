@@ -114,3 +114,10 @@ body {
 
 /* Mobile bottom nav bar height token */
 :root { --bottom-nav-h: 64px; }
+
+/* Modal bottom sheet — sits above the bottom tab bar on mobile */
+@media (max-width: 639px) {
+  .modal-sheet {
+    margin-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
